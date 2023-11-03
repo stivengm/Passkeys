@@ -23,13 +23,13 @@ class App extends Component {
           'origin': window.location.origin,
           'referer': window.location.origin
       },
-      body: JSON.stringify({ "id": "1", "name": "Test" })
+      body: JSON.stringify({ "id": "20202", "name": "Daniel" })
     });
     return responseEnroll;
   }
 
   async validateBrowser() {
-    var isAuthPasskey = true;
+    var isAuthPasskey = false; // TODO: Si está en TRUE es Authentication de lo contrario es Enrollment
 
     var data;
 
@@ -108,8 +108,8 @@ class App extends Component {
     console.log(resultGET);
 
     let bodyPasskey = {
-        identificationNumber: "",
-        documentType: "",
+        identificationNumber: "1006443265",
+        documentType: "CC",
         command: "GET",
         username: "UserName",
         entityId: 5,
@@ -167,8 +167,8 @@ class App extends Component {
     console.log(resultCreate);
 
     let bodyPasskey = {
-        identificationNumber: "",
-        documentType: "",
+        identificationNumber: "1006443265",
+        documentType: "CC",
         command: "CREATE",
         username: "UserName",
         entityId: 5,
