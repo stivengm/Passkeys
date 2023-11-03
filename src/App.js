@@ -29,7 +29,7 @@ class App extends Component {
   }
 
   async validateBrowser() {
-    var isAuthPasskey = false;
+    var isAuthPasskey = true;
 
     var data;
 
@@ -58,8 +58,77 @@ class App extends Component {
     }
   }
 
-  authenticationPasskey(data) {
-    console.log("authenticationPasskey");
+  async authenticationPasskey(data) {
+    
+    let id;
+
+    console.log(data);
+    let step1 = data;
+
+
+    id = step1.id
+    console.log(step1.publicKey.status);
+
+    if (step1.publicKey.status != "ok") {
+
+        console.log("Es diferente a OK");
+        return;
+    } 
+
+    if (step1.publicKey.allowCredentials) {
+        for (var i=0; i<step1.publicKey.allowCredentials.length;i++) {
+            step1.publicKey.allowCredentials[i].id = this.base64urlToBytes(step1.publicKey.allowCredentials[i].id)
+            step1.publicKey.allowCredentials[i].transports = ["internal"]
+        }
+    }
+
+    step1.publicKey.challenge = this.base64urlToBytes(step1.publicKey.challenge)
+    step1.publicKey.extensions = {
+        txAuthSimple: "Sign in to your ACME account",
+        exts: true,
+        uvi: true,
+        loc: true,
+        uvm: true
+    }
+
+    let resultGET = null;
+    await navigator.credentials.get({ publicKey: step1.publicKey }).then((res) => {
+        console.log(res) 
+        resultGET = res
+    }).catch((err) => { 
+        console.log(err) 
+        // logs.value = logs.value + "\n" + err
+    })
+    
+    if (resultGET == null) {
+        // logs.value = logs.value + "\nChallenge error"
+        return
+    }
+
+    console.log(resultGET);
+
+    let bodyPasskey = {
+        identificationNumber: "",
+        documentType: "",
+        command: "GET",
+        username: "UserName",
+        entityId: 5,
+        userId: 11122,
+        credential: {
+            id: resultGET.id,
+            rawId: this.bytesToBase64url(resultGET.rawId),
+            type: resultGET.type,
+            response: {
+                clientDataJSON: this.bytesToBase64url(resultGET.response.clientDataJSON),
+                attestationObject: "", // Tengo que mirar donde está este objeto.
+                authenticatorData: this.bytesToBase64url(resultGET.response.authenticatorData),
+                signature: this.bytesToBase64url(resultGET.response.signature),
+            }
+        }
+    }
+
+    console.log(bodyPasskey);
+    console.log(JSON.stringify(bodyPasskey));
   }
 
   async enrollmentPasskey(data) {
